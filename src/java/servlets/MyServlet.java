@@ -6,7 +6,9 @@
 package servlets;
 
 import entity.Book;
+import entity.Reader;
 import java.io.IOException;
+import java.util.List;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -14,6 +16,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import session.BookFacade;
+import session.ReaderFacade;
 
 /**
  *
@@ -22,10 +25,14 @@ import session.BookFacade;
 @WebServlet(name = "MyServlet", urlPatterns = {
     "/addBook",
     "/createBook",
+    "/addReader",
+    "/createReader",
+    "/listBooks",
 })
 public class MyServlet extends HttpServlet {
     @EJB
     private BookFacade bookFacade;
+    private ReaderFacade readerFacade;
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -59,6 +66,26 @@ public class MyServlet extends HttpServlet {
                 bookFacade.create(book);
                 request.getRequestDispatcher("/index.jsp").forward(request, response);
                 break;
+            case "/addReader":
+                request.getRequestDispatcher("/WEB-INF/addReaderForm.jsp").forward(request, response);
+                break;
+            case "/createReader":
+                String firstname = request.getParameter("firstname");
+                String lastname = request.getParameter("lastname");
+                String phone = request.getParameter("phone");
+                request.setAttribute("info", 
+                        "Пользователь "+firstname+
+                        " "+ lastname +
+                        " Телефон:"+ phone        
+                );
+                Reader reader = new Reader(firstname,lastname,phone);
+                readerFacade.create(reader);
+                request.getRequestDispatcher("/index.jsp").forward(request, response);
+                break;
+            case "/listBooks":
+                List<Book> listBooks = bookFacade.findAll();
+                request.setAttribute("listBooks", listBooks);
+                request.getRequestDispatcher("/WEB-INF/listBooks.jsp").forward(request, response);
         }
     }
 
